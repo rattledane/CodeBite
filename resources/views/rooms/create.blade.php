@@ -1,21 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-[#f3f4f6] min-h-screen pb-20 pt-12">
+<div class="min-h-screen pb-20 pt-12">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Header -->
-        <div class="mb-12 text-center">
-            <h1 class="text-6xl font-black uppercase tracking-tighter shadow-text-yellow mb-4" style="text-shadow: 4px 4px 0px #FFE500, 6px 6px 0px #000;">
-                MULTIPLAYER
+        <div class="mb-12 text-center animate-slide-in">
+            <div class="inline-block bg-white neo-border px-4 py-1 mb-4" style="box-shadow: var(--neo-shadow-sm); font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">
+                ⚔️ Real-Time Battle
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tighter" style="font-family: 'Space Mono', monospace;">
+                Multiplayer
             </h1>
-            <p class="text-xl font-bold bg-white inline-block px-6 py-2 border-4 border-black shadow-[4px_4px_0px_#000]">
+            <p class="text-lg font-bold bg-white inline-block px-6 py-2 neo-border mt-4" style="box-shadow: var(--neo-shadow-sm);">
                 Main bareng teman-temanmu secara Real-Time! 🚀
             </p>
         </div>
 
         @if($errors->any())
-            <div class="bg-red-400 border-4 border-black p-4 mb-8 font-bold text-white shadow-[6px_6px_0px_#000]">
+            <div class="neo-border p-4 mb-8 font-bold text-white animate-slide-in" style="background: #FF6B6B; box-shadow: var(--neo-shadow);">
                 <ul>
                     @foreach($errors->all() as $error)
                         <li>⚠ {{ $error }}</li>
@@ -27,40 +30,45 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
 
             <!-- JOIN ROOM CARD -->
-            <div class="bg-white border-4 border-black p-8 shadow-[12px_12px_0px_#000] flex flex-col">
+            <div class="neo-card p-8 flex flex-col animate-slide-in stagger-1" style="box-shadow: 8px 8px 0px var(--neo-black);">
                 <div class="mb-8">
-                    <span class="bg-[#00ff88] px-3 py-1 font-black text-xl border-2 border-black shadow-[2px_2px_0px_#000]">JOIN</span>
-                    <h2 class="text-4xl font-black uppercase mt-4 mb-2">Masuk Room</h2>
+                    <span class="neo-border px-3 py-1 font-black text-xl inline-block" style="background: var(--neo-green); box-shadow: 2px 2px 0px var(--neo-black); font-family: 'Space Mono', monospace;">JOIN</span>
+                    <h2 class="text-3xl md:text-4xl font-black uppercase mt-4 mb-2" style="font-family: 'Space Mono', monospace;">Masuk Room</h2>
                     <p class="font-bold text-gray-600">Punya kode room dari teman? Masukkan di sini.</p>
                 </div>
 
                 <form action="{{ route('rooms.join') }}" method="POST" class="flex-grow flex flex-col justify-between">
                     @csrf
                     <div class="mb-8">
-                        <label class="block font-black uppercase text-lg mb-2">Kode Room (6 Digit)</label>
-                        <input type="text" name="code" required maxlength="6" class="w-full bg-[#f3f4f6] border-4 border-black p-4 text-3xl font-black font-mono tracking-widest text-center uppercase focus:outline-none focus:bg-[#FFE500] transition-colors" placeholder="XXXXXX">
+                        <label class="block font-black uppercase text-base mb-2" style="font-family: 'Space Mono', monospace; letter-spacing: 1px;">Kode Room (6 Digit)</label>
+                        <input type="text" name="code" required maxlength="6"
+                               class="w-full neo-border p-4 text-3xl font-black tracking-widest text-center uppercase focus:outline-none transition-colors"
+                               style="font-family: 'Space Mono', monospace; background: #f9f9f4; box-shadow: inset 3px 3px 0px rgba(0,0,0,0.1);"
+                               onfocus="this.style.background='var(--neo-yellow)'"
+                               onblur="this.style.background='#f9f9f4'"
+                               placeholder="XXXXXX">
                     </div>
-                    
-                    <button type="submit" class="w-full bg-[#00ff88] border-4 border-black p-4 font-black text-2xl uppercase tracking-wider shadow-[6px_6px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_#000] transition-all flex justify-center items-center gap-3">
+
+                    <button type="submit" class="neo-btn w-full text-xl uppercase tracking-wider" style="background: var(--neo-green); padding: 16px 24px; font-family: 'Space Mono', monospace; box-shadow: var(--neo-shadow);">
                         Join Sekarang ➡
                     </button>
                 </form>
             </div>
 
             <!-- CREATE ROOM CARD -->
-            <div class="bg-black text-white border-4 border-black p-8 shadow-[12px_12px_0px_#FFE500] flex flex-col">
+            <div class="neo-border p-8 flex flex-col animate-slide-in stagger-2" style="background: var(--neo-black); color: white; box-shadow: 8px 8px 0px var(--neo-yellow);">
                 <div class="mb-8">
-                    <span class="bg-[#FFE500] text-black px-3 py-1 font-black text-xl border-2 border-black shadow-[2px_2px_0px_#fff]">CREATE</span>
-                    <h2 class="text-4xl font-black uppercase mt-4 mb-2 text-[#FFE500]">Buat Room</h2>
-                    <p class="font-bold text-gray-300">Pilih game dan ajak temanmu balapan coding!</p>
+                    <span class="neo-border px-3 py-1 font-black text-xl inline-block" style="background: var(--neo-yellow); color: var(--neo-black); box-shadow: 2px 2px 0px white; font-family: 'Space Mono', monospace;">CREATE</span>
+                    <h2 class="text-3xl md:text-4xl font-black uppercase mt-4 mb-2" style="font-family: 'Space Mono', monospace; color: var(--neo-yellow);">Buat Room</h2>
+                    <p class="font-bold" style="color: #aaa;">Pilih game dan ajak temanmu balapan coding!</p>
                 </div>
 
                 <form action="{{ route('rooms.store') }}" method="POST" class="flex-grow flex flex-col justify-between">
                     @csrf
                     <div class="mb-8">
-                        <label class="block font-black uppercase text-lg mb-2 text-[#00ff88]">Pilih Game</label>
+                        <label class="block font-black uppercase text-base mb-2" style="font-family: 'Space Mono', monospace; letter-spacing: 1px; color: var(--neo-green);">Pilih Game</label>
                         <div class="relative">
-                            <select name="game_id" required class="appearance-none w-full bg-gray-800 text-white border-4 border-white p-4 font-bold text-xl cursor-pointer focus:outline-none focus:border-[#FFE500]">
+                            <select name="game_id" required class="appearance-none w-full neo-border p-4 font-bold text-xl cursor-pointer focus:outline-none transition-colors" style="background: #333; color: white; border-color: white;" onfocus="this.style.borderColor='var(--neo-yellow)'" onblur="this.style.borderColor='white'">
                                 @foreach($games as $game)
                                     <option value="{{ $game->id }}">{{ $game->title }}</option>
                                 @endforeach
@@ -70,8 +78,8 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="w-full bg-[#FFE500] text-black border-4 border-white p-4 font-black text-2xl uppercase tracking-wider shadow-[6px_6px_0px_#fff] hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_#000] transition-all flex justify-center items-center gap-3">
+
+                    <button type="submit" class="neo-btn w-full text-xl uppercase tracking-wider" style="background: var(--neo-yellow); color: var(--neo-black); padding: 16px 24px; font-family: 'Space Mono', monospace; border-color: white; box-shadow: 6px 6px 0px white;">
                         ➕ Buat Room
                     </button>
                 </form>
