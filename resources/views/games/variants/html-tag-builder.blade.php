@@ -4,25 +4,8 @@
 @vite('resources/js/games/html-builder.js')
 <div x-data="gameLogic()" class="flex flex-col lg:flex-row h-screen lg:h-full w-full bg-[#f3f4f6] relative overflow-y-auto lg:overflow-hidden">
 
-    <!-- Score Popup Overlay -->
-    <div 
-        x-show="showPopup" 
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 scale-50"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-50"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-        style="display: none;"
-    >
-        <div class="bg-white neo-border p-8 flex flex-col items-center justify-center max-w-sm w-full neo-shadow m-4" style="box-shadow: 8px 8px 0px #FFE500;">
-            <h2 class="text-3xl font-black mb-4 uppercase text-center">Level Passed!</h2>
-            <div class="text-6xl mb-4">✨</div>
-            <div class="text-2xl font-bold font-mono">+<span x-text="popupScore"></span> Points</div>
-            <div class="text-sm font-bold mt-2 text-gray-500 uppercase">Moving to next level...</div>
-        </div>
-    </div>
+    <!-- Unified Popup Overlay -->
+    @include('partials.game-popup')
 
     <!-- LEFT PANEL (30%) -->
     <div class="w-full lg:w-[30%] lg:h-full p-4 sm:p-6 border-b-4 lg:border-b-0 lg:border-r-4 border-black flex flex-col bg-white lg:overflow-y-auto">
@@ -61,9 +44,21 @@
             <button @click="submit(false)" :disabled="showPopup" class="flex-1 bg-[#FFE500] neo-border neo-shadow neo-button-hover font-bold text-lg py-4 uppercase disabled:opacity-50 h-[56px]">
                 Submit
             </button>
-            <button class="px-6 bg-white neo-border neo-shadow neo-button-hover font-bold text-lg uppercase h-[56px]">
-                Hint
+            <button @click="showHint = !showHint" class="px-6 neo-border neo-shadow neo-button-hover font-bold text-lg uppercase h-[56px] transition-colors" :class="showHint ? 'bg-[#FFE500]' : 'bg-white'">
+                <span x-show="!showHint">💡 Hint</span>
+                <span x-show="showHint">✕ Tutup</span>
             </button>
+        </div>
+
+        <!-- Hint Panel -->
+        <div x-show="showHint && currentLevel.hint" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="mt-4 neo-border p-4 relative" style="background: #FFF9C4; box-shadow: 3px 3px 0px var(--neo-black);">
+            <div class="flex items-start gap-3">
+                <span class="text-2xl flex-shrink-0">💡</span>
+                <div>
+                    <div class="font-black text-sm uppercase mb-1" style="font-family: 'Space Mono', monospace; letter-spacing: 1px;">Hint</div>
+                    <p class="font-bold text-sm leading-relaxed" x-text="currentLevel.hint"></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -113,6 +108,9 @@
             timer: null,
             
             showPopup: false,
+            showHint: false,
+            popupType: 'success',
+            popupNextLevel: null,
             popupScore: 0,
             roomCode: new URLSearchParams(window.location.search).get('room'),
 
@@ -171,6 +169,7 @@
                 this.userCode = '';
                 this.timeLeft = 60;
                 this.attempts = 0;
+                this.showHint = false;
                 if (window.updatePreview) {
                     window.updatePreview('');
                 }
@@ -261,7 +260,6 @@
                 if (finished) {
                     if (this.roomCode) {
                         await this.finishRoom();
-                        alert("Menunggu pemain lain selesai...");
                     } else {
                         window.location.href = '/games/' + this.game.slug + '/complete';
                     }
@@ -269,6 +267,13 @@
                 }
                 
                 this.loadLevel();
+            },
+
+            showResultPopup(type, score = 0, nextLevel = null) {
+                this.popupType = type;
+                this.popupScore = score;
+                this.popupNextLevel = nextLevel;
+                this.showPopup = true;
             },
 
             async submit(isAuto = false) {
@@ -320,16 +325,9 @@
                                     const preview = document.getElementById('preview-container');
                                     preview.classList.add('scale-105', 'transition-transform');
                                     setTimeout(() => preview.classList.remove('scale-105'), 300);
-                                    
-                                    this.popupScore = earnedScore;
-                                    this.showPopup = true;
-                                    
-                                    setTimeout(() => {
-                                        this.advanceToNextLevel();
-                                    }, 2000);
+                                    this.showResultPopup('success', earnedScore, null);
                                 } else if (isAuto) {
-                                    alert('Waktu habis! Lanjut ke level berikutnya.');
-                                    this.advanceToNextLevel();
+                                    this.showResultPopup('timeout', 0, null);
                                 }
                             }
                         } else {
@@ -361,23 +359,19 @@
                                     const preview = document.getElementById('preview-container');
                                     preview.classList.add('scale-105', 'transition-transform');
                                     setTimeout(() => preview.classList.remove('scale-105'), 300);
-                                    
-                                    this.popupScore = data.score;
-                                    this.showPopup = true;
-                                    
-                                    setTimeout(() => {
-                                        this.advanceToNextLevel(data.next_level);
-                                    }, 2000);
+                                    this.showResultPopup('success', data.score, data.next_level);
                                 } else if (isAuto) {
-                                    alert('Waktu habis! Lanjut ke level berikutnya.');
-                                    this.advanceToNextLevel(data.next_level);
+                                    this.showResultPopup('timeout', 0, data.next_level);
                                 }
                             }
                         }
                     } catch (error) {
                         console.error('Error saving progress:', error);
-                        alert('Gagal menyimpan, tapi tetap lanjut.');
-                        if (isCorrect) this.advanceToNextLevel();
+                        if (isCorrect) {
+                            this.showResultPopup('success', 0, null);
+                        } else {
+                            this.showResultPopup('timeout', 0, null);
+                        }
                     }
                     
                 } else {
@@ -391,7 +385,7 @@
                             setTimeout(() => editor.style.transform = 'none', 100);
                         }, 100);
                     }
-                    alert('Jawaban belum tepat. Coba lagi!');
+                    this.showResultPopup('wrong');
                 }
             }
         }

@@ -25,30 +25,35 @@ class GameSeeder extends Seeder
                 'instruction' => 'Gunakan justify-content untuk memindahkan katak ke kanan!',
                 'initial_code' => "#pond {\n  display: flex;\n  /* tambahkan kodemu di bawah ini */\n  \n}",
                 'answer_key' => 'justify-content: flex-end',
+                'hint' => 'Coba gunakan justify-content dengan nilai yang memindahkan item ke akhir baris. Pilihan: flex-start, flex-end, center, space-between, space-around.',
             ],
             [
                 'order' => 2,
                 'instruction' => 'Pindahkan katak ke tengah!',
                 'initial_code' => "#pond {\n  display: flex;\n  /* tambahkan kodemu di bawah ini */\n  \n}",
                 'answer_key' => 'justify-content: center',
+                'hint' => 'justify-content mengatur posisi horizontal. Untuk tengah, gunakan nilai "center".',
             ],
             [
                 'order' => 3,
                 'instruction' => 'Sebarkan katak secara merata!',
                 'initial_code' => "#pond {\n  display: flex;\n  /* tambahkan kodemu di bawah ini */\n  \n}",
                 'answer_key' => 'justify-content: space-around',
+                'hint' => 'Ada dua cara menyebarkan elemen: space-between (tanpa ruang di tepi) dan space-around (dengan ruang di tepi). Yang mana sesuai?',
             ],
             [
                 'order' => 4,
                 'instruction' => 'Beri jarak antar katak!',
                 'initial_code' => "#pond {\n  display: flex;\n  /* tambahkan kodemu di bawah ini */\n  \n}",
                 'answer_key' => 'justify-content: space-between',
+                'hint' => 'Gunakan justify-content dengan nilai yang membuat jarak merata di ANTARA elemen, bukan di tepi.',
             ],
             [
                 'order' => 5,
                 'instruction' => 'Gunakan align-items untuk memindahkan katak ke bawah!',
                 'initial_code' => "#pond {\n  display: flex;\n  /* tambahkan kodemu di bawah ini */\n  \n}",
                 'answer_key' => 'align-items: flex-end',
+                'hint' => 'align-items mengatur posisi vertikal (cross axis). Untuk bawah, gunakan flex-end.',
             ]
         ];
 
@@ -71,13 +76,15 @@ class GameSeeder extends Seeder
                 'initial_code' => "#water {\n  /* tambahkan css di bawah ini */\n  \n}",
                 'answer_key' => 'grid-column-start: 5',
                 'max_score' => 100,
+                'hint' => 'grid-column-start menentukan di kolom berapa sebuah elemen dimulai. Gunakan angka kolom secara langsung.',
             ],
             [
                 'order' => 2,
                 'instruction' => 'Tanaman ada di akhir kebun. Gunakan grid-column-start dengan nilai negatif atau angka besar.',
                 'initial_code' => "#water {\n  /* tambahkan css di bawah ini */\n  \n}",
-                'answer_key' => 'grid-column-start: 3', // Or any valid value
+                'answer_key' => 'grid-column-start: 3',
                 'max_score' => 100,
+                'hint' => 'Coba hitung posisi tanaman dari kiri. Kolom dimulai dari 1.',
             ],
             [
                 'order' => 3,
@@ -85,6 +92,7 @@ class GameSeeder extends Seeder
                 'initial_code' => "#water {\n  grid-column-start: 1;\n  /* tambahkan css di bawah ini */\n  \n}",
                 'answer_key' => 'grid-column-end: 4',
                 'max_score' => 100,
+                'hint' => 'grid-column-end menentukan di mana elemen berakhir. Jika start=1, maka end=4 berarti elemen mencakup 3 kolom.',
             ],
             [
                 'order' => 4,
@@ -92,6 +100,7 @@ class GameSeeder extends Seeder
                 'initial_code' => "#water {\n  /* tambahkan css di bawah ini */\n  \n}",
                 'answer_key' => 'grid-column: 2 / 5',
                 'max_score' => 100,
+                'hint' => 'grid-column adalah shorthand. Formatnya: grid-column: start / end. Contoh: 1 / 4 artinya kolom 1 sampai 3.',
             ],
             [
                 'order' => 5,
@@ -99,6 +108,7 @@ class GameSeeder extends Seeder
                 'initial_code' => "#water {\n  /* tambahkan css di bawah ini */\n  \n}",
                 'answer_key' => 'grid-row-start: 4',
                 'max_score' => 100,
+                'hint' => 'grid-row-start bekerja sama seperti grid-column-start, tapi untuk baris (vertikal). Hitung posisi baris dari atas.',
             ]
         ];
 
@@ -121,6 +131,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => 'p',
                 'max_score' => 100,
+                'hint' => 'Untuk memilih semua elemen berdasarkan tag, cukup tulis nama tag-nya saja tanpa tanda apapun.',
             ],
             [
                 'order' => 2,
@@ -128,6 +139,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => '.highlight',
                 'max_score' => 100,
+                'hint' => 'Class selector menggunakan tanda titik (.) di depan nama class. Contoh: .namaclass',
             ],
             [
                 'order' => 3,
@@ -135,6 +147,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => 'p:first-child',
                 'max_score' => 100,
+                'hint' => 'Gabungkan tag selector dengan pseudo-class. Format: tag:pseudo-class. Pseudo-class :first-child memilih anak pertama.',
             ],
             [
                 'order' => 4,
@@ -142,6 +155,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => 'div p',
                 'max_score' => 100,
+                'hint' => 'Descendant selector menggunakan spasi antara parent dan child. Format: parent child.',
             ],
             [
                 'order' => 5,
@@ -149,6 +163,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => '#target',
                 'max_score' => 100,
+                'hint' => 'ID selector menggunakan tanda pagar (#) di depan nama id. Contoh: #namaid',
             ]
         ];
 
@@ -171,6 +186,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => '<h1>Hello World</h1>',
                 'max_score' => 100,
+                'hint' => 'Tag heading h1 memiliki format: <h1>teks</h1>. Jangan lupa closing tag!',
             ],
             [
                 'order' => 2,
@@ -178,6 +194,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => '<a href="https://google.com">Google</a>',
                 'max_score' => 100,
+                'hint' => 'Tag link menggunakan <a> dengan atribut href. Format: <a href="url">teks link</a>',
             ],
             [
                 'order' => 3,
@@ -185,6 +202,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => "<ol>\n  <li>Satu</li>\n  <li>Dua</li>\n  <li>Tiga</li>\n</ol>",
                 'max_score' => 100,
+                'hint' => 'Ordered list menggunakan <ol> sebagai container dan <li> untuk setiap item. Pastikan ada 3 <li> di dalam <ol>.',
             ]
         ];
 
@@ -207,6 +225,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => "let nama = 'CodeBite'",
                 'max_score' => 100,
+                'hint' => "Gunakan keyword 'let' diikuti nama variabel, tanda sama dengan, lalu nilainya dalam tanda kutip. Format: let namaVar = 'nilai'",
             ],
             [
                 'order' => 2,
@@ -214,6 +233,7 @@ class GameSeeder extends Seeder
                 'initial_code' => '',
                 'answer_key' => 'function add() { return 2 + 2; }',
                 'max_score' => 100,
+                'hint' => 'Deklarasi fungsi: function namaFungsi() { return ekspresi; }. Gunakan keyword return untuk mengembalikan hasil.',
             ]
         ];
 

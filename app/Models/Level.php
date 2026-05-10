@@ -14,6 +14,8 @@ class Level extends Model
         'instruction',
         'initial_code',
         'answer_key',
+        'hint',
+        'explanation',
         'max_score',
     ];
 

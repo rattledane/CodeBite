@@ -5,25 +5,8 @@
 @vite('resources/js/games/flexbox-froggy.js')
 <div x-data="gameLogic()" class="flex flex-col lg:flex-row h-screen lg:h-full w-full bg-[#f3f4f6] relative overflow-y-auto lg:overflow-hidden">
 
-    <!-- Score Popup Overlay -->
-    <div 
-        x-show="showPopup" 
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 scale-50"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-50"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-        style="display: none;"
-    >
-        <div class="bg-white neo-border p-8 flex flex-col items-center justify-center max-w-sm w-full neo-shadow m-4" style="box-shadow: 8px 8px 0px #FFE500;">
-            <h2 class="text-3xl font-black mb-4 uppercase text-center">Level Passed!</h2>
-            <div class="text-6xl mb-4">🐸</div>
-            <div class="text-2xl font-bold font-mono">+<span x-text="popupScore"></span> Points</div>
-            <div class="text-sm font-bold mt-2 text-gray-500 uppercase">Moving to next level...</div>
-        </div>
-    </div>
+    <!-- Unified Popup Overlay -->
+    @include('partials.game-popup')
 
     <!-- LEFT PANEL (30%) -->
     <div class="w-full lg:w-[30%] lg:h-full p-4 sm:p-6 border-b-4 lg:border-b-0 lg:border-r-4 border-black flex flex-col bg-white lg:overflow-y-auto">
@@ -62,9 +45,21 @@
             <button @click="submit(false)" :disabled="showPopup" class="flex-1 bg-[#FFE500] neo-border neo-shadow neo-button-hover font-bold text-lg py-4 uppercase disabled:opacity-50 h-[56px]">
                 Submit
             </button>
-            <button class="px-6 bg-white neo-border neo-shadow neo-button-hover font-bold text-lg uppercase h-[56px]">
-                Hint
+            <button @click="showHint = !showHint" class="px-6 neo-border neo-shadow neo-button-hover font-bold text-lg uppercase h-[56px] transition-colors" :class="showHint ? 'bg-[#FFE500]' : 'bg-white'">
+                <span x-show="!showHint">💡 Hint</span>
+                <span x-show="showHint">✕ Tutup</span>
             </button>
+        </div>
+
+        <!-- Hint Panel -->
+        <div x-show="showHint && currentLevel.hint" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="mt-4 neo-border p-4 relative" style="background: #FFF9C4; box-shadow: 3px 3px 0px var(--neo-black);">
+            <div class="flex items-start gap-3">
+                <span class="text-2xl flex-shrink-0">💡</span>
+                <div>
+                    <div class="font-black text-sm uppercase mb-1" style="font-family: 'Space Mono', monospace; letter-spacing: 1px;">Hint</div>
+                    <p class="font-bold text-sm leading-relaxed" x-text="currentLevel.hint"></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -120,18 +115,19 @@
             timer: null,
             
             showPopup: false,
+            showHint: false,
             popupScore: 0,
+            popupType: 'success', // 'success', 'wrong', 'timeout'
+            popupNextLevel: null,
             roomCode: new URLSearchParams(window.location.search).get('room'),
 
             init() {
                 if (this.roomCode) {
-                    // Multiplayer: Start fresh at level 1
                     this.currentLevelIndex = 0;
                     this.score = 0;
                     this.completedLevels = [];
                     this.levelScores = {};
                 } else {
-                    // Solo: Resume progress
                     let firstUncompleted = this.levels.findIndex(l => !this.completedLevels.includes(l.id));
                     if (firstUncompleted !== -1) {
                         this.currentLevelIndex = firstUncompleted;
@@ -174,6 +170,7 @@
                 this.userCode = '';
                 this.timeLeft = 60;
                 this.attempts = 0;
+                this.showHint = false;
             },
             
             goToLevel(index) {
@@ -261,7 +258,9 @@
                 if (finished) {
                     if (this.roomCode) {
                         await this.finishRoom();
-                        alert("Menunggu pemain lain selesai...");
+                        // Show a waiting popup instead of alert
+                        this.popupType = 'success';
+                        this.showPopup = true;
                     } else {
                         window.location.href = '/games/' + this.game.slug + '/complete';
                     }
@@ -269,6 +268,13 @@
                 }
                 
                 this.loadLevel();
+            },
+
+            showResultPopup(type, score = 0, nextLevel = null) {
+                this.popupType = type;
+                this.popupScore = score;
+                this.popupNextLevel = nextLevel;
+                this.showPopup = true;
             },
 
             async submit(isAuto = false) {
@@ -291,7 +297,6 @@
                         let data;
 
                         if (this.roomCode) {
-                            // Hit multiplayer endpoint
                             let updatedScore = this.score + earnedScore;
                             let nextLvl = this.currentLevelIndex + 1 + (isCorrect ? 1 : 0);
                             
@@ -321,20 +326,12 @@
                                     const pond = document.getElementById('pond-container');
                                     pond.classList.add('scale-105', 'transition-transform');
                                     setTimeout(() => pond.classList.remove('scale-105'), 300);
-                                    
-                                    this.popupScore = earnedScore;
-                                    this.showPopup = true;
-                                    
-                                    setTimeout(() => {
-                                        this.advanceToNextLevel();
-                                    }, 2000);
+                                    this.showResultPopup('success', earnedScore, null);
                                 } else if (isAuto) {
-                                    alert('Time is up! Let\'s move to the next level.');
-                                    this.advanceToNextLevel();
+                                    this.showResultPopup('timeout', 0, null);
                                 }
                             }
                         } else {
-                            // Normal solo progress endpoint
                             response = await fetch('/games/progress', {
                                 method: 'POST',
                                 headers: {
@@ -363,27 +360,24 @@
                                     const pond = document.getElementById('pond-container');
                                     pond.classList.add('scale-105', 'transition-transform');
                                     setTimeout(() => pond.classList.remove('scale-105'), 300);
-                                    
-                                    this.popupScore = data.score;
-                                    this.showPopup = true;
-                                    
-                                    setTimeout(() => {
-                                        this.advanceToNextLevel(data.next_level);
-                                    }, 2000);
+                                    this.showResultPopup('success', data.score, data.next_level);
                                 } else if (isAuto) {
-                                    alert('Time is up! Let\'s move to the next level.');
-                                    this.advanceToNextLevel(data.next_level);
+                                    this.showResultPopup('timeout', 0, data.next_level);
                                 }
                             }
                         }
 
                     } catch (error) {
                         console.error('Error saving progress:', error);
-                        alert('Error saving progress, but moving on.');
-                        if (isCorrect) this.advanceToNextLevel();
+                        if (isCorrect) {
+                            this.showResultPopup('success', 0, null);
+                        } else {
+                            this.showResultPopup('timeout', 0, null);
+                        }
                     }
                     
                 } else {
+                    // Wrong answer — show styled popup
                     this.streak = 0;
                     const editor = document.querySelector('textarea');
                     editor.classList.add('bg-red-900', 'bg-opacity-30', 'translate-x-2');
@@ -393,7 +387,7 @@
                         setTimeout(() => editor.classList.remove('-translate-x-2'), 100);
                     }, 100);
                     
-                    alert('Coba lagi!');
+                    this.showResultPopup('wrong');
                 }
             }
         }
