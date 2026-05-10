@@ -1,0 +1,9 @@
+[program:codebite-reverb]
+process_name=%(program_name)s
+command=php /var/www/codebite/artisan reverb:start
+autostart=true
+autorestart=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/www/codebite/storage/logs/reverb.log
+stopwaitsecs=3600
