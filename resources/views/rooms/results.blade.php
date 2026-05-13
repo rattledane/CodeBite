@@ -141,7 +141,7 @@
         <a href="{{ route('rooms.create') }}" class="neo-btn text-xl uppercase tracking-wider" style="padding: 16px 32px; font-family: 'Space Mono', monospace; box-shadow: var(--neo-shadow);">
             🏠 Lobby Baru
         </a>
-        <a href="{{ route('leaderboards.index') }}" class="neo-btn text-xl uppercase tracking-wider" style="background: var(--neo-teal); padding: 16px 32px; font-family: 'Space Mono', monospace; box-shadow: var(--neo-shadow);">
+        <a href="{{ route('leaderboard.index') }}" class="neo-btn text-xl uppercase tracking-wider" style="background: var(--neo-teal); padding: 16px 32px; font-family: 'Space Mono', monospace; box-shadow: var(--neo-shadow);">
             🏆 Leaderboard
         </a>
     </div>

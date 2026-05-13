@@ -8,6 +8,7 @@ use App\Events\PlayerJoined;
 use App\Events\GameStarted;
 use App\Events\ScoreUpdated;
 use App\Events\RaceFinished;
+use App\Helpers\SafeBroadcast;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,7 +80,7 @@ class RoomController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            broadcast(new PlayerJoined($room, Auth::user()))->toOthers();
+            SafeBroadcast::dispatch(new PlayerJoined($room, Auth::user()), toOthers: true);
         }
 
         return redirect()->route('rooms.lobby', $room->code);
@@ -104,7 +105,7 @@ class RoomController extends Controller
             ]);
 
             $room->load('participants.user');
-            broadcast(new PlayerJoined($room, Auth::user()))->toOthers();
+            SafeBroadcast::dispatch(new PlayerJoined($room, Auth::user()), toOthers: true);
         } elseif (!$isParticipant) {
             return redirect()->route('games.index')->withErrors(['msg' => 'Tidak bisa bergabung ke room ini.']);
         }
@@ -134,7 +135,7 @@ class RoomController extends Controller
             'started_at' => now(),
         ]);
 
-        broadcast(new GameStarted($room));
+        SafeBroadcast::dispatch(new GameStarted($room));
 
         return response()->json(['success' => true, 'message' => 'Game dimulai!']);
     }
@@ -160,7 +161,7 @@ class RoomController extends Controller
             'current_level' => $request->current_level,
         ]);
 
-        broadcast(new ScoreUpdated($room, Auth::user(), $request->score, $request->current_level))->toOthers();
+        SafeBroadcast::dispatch(new ScoreUpdated($room, Auth::user(), $request->score, $request->current_level), toOthers: true);
 
         return response()->json(['success' => true, 'score' => $participant->score]);
     }
@@ -198,7 +199,7 @@ class RoomController extends Controller
                 'finished_at' => now(),
             ]);
 
-            broadcast(new RaceFinished($room, $allParticipants));
+            SafeBroadcast::dispatch(new RaceFinished($room, $allParticipants));
         }
 
         return response()->json([
@@ -233,7 +234,7 @@ class RoomController extends Controller
             'rank' => null,
         ]);
 
-        broadcast(new \App\Events\RoomRestarted($room));
+        SafeBroadcast::dispatch(new \App\Events\RoomRestarted($room));
 
         return response()->json(['success' => true]);
     }

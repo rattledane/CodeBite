@@ -49,6 +49,7 @@ class StageStarting implements ShouldBroadcastNow
                 'slug' => $this->game->slug,
                 'title' => $this->game->title,
                 'description' => $this->game->description,
+                'total_levels' => $this->game->levels()->count(),
             ],
             'all_games' => $this->allGames,
             'timer_seconds' => $this->room->stage_timer,

@@ -40,6 +40,20 @@
                 <p class="text-center font-bold text-gray-600">Waktu sudah habis untuk level ini.</p>
             </div>
         </template>
+        
+        <!-- Stage Finished State (Babak Belur) -->
+        <template x-if="popupType === 'stage_finished'">
+            <div class="flex flex-col items-center w-full">
+                <h2 class="text-3xl font-black mb-3 uppercase text-center text-[#00cc66]">Selamat!</h2>
+                <div class="text-5xl mb-3">🏅</div>
+                <p class="text-center font-bold text-gray-600 mb-2">Mohon Tunggu Player Lain</p>
+                <div class="neo-border p-3 bg-gray-50 w-full text-center">
+                    <div class="text-xs font-black uppercase text-gray-400">Skor Stage</div>
+                    <div class="text-2xl font-black" x-text="popupScore"></div>
+                </div>
+                <p class="text-center text-sm text-gray-500 mt-4 animate-pulse">Menunggu pemain lain & host...</p>
+            </div>
+        </template>
 
         <!-- Explanation (shown on success and timeout) -->
         <div x-show="popupType !== 'wrong' && currentLevel.explanation" class="w-full mt-5 neo-border p-4 relative" style="background: #F0FFF4; box-shadow: 3px 3px 0px var(--neo-black);">
@@ -68,12 +82,15 @@
                 🔄 Coba Lagi
             </button>
             <button 
-                x-show="popupType !== 'wrong'" 
+                x-show="popupType !== 'wrong' && popupType !== 'stage_finished'" 
                 @click="advanceToNextLevel(popupNextLevel)" 
                 class="w-full bg-[#00ff88] neo-border neo-shadow neo-button-hover font-bold text-lg py-3 uppercase"
             >
                 ➡️ Lanjut
             </button>
+            <div x-show="popupType === 'stage_finished'" class="w-full bg-gray-100 neo-border p-3 text-center font-black uppercase text-gray-500">
+                ⏳ Menunggu Host
+            </div>
         </div>
     </div>
 </div>

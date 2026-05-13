@@ -38,6 +38,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/rooms/{code}/score', [RoomController::class, 'updateScore'])->name('rooms.score');
     Route::post('/rooms/{code}/finish', [RoomController::class, 'finish'])->name('rooms.finish');
     Route::post('/rooms/{code}/restart', [RoomController::class, 'restart'])->name('rooms.restart');
+
+    // Babak Belur (Multiplayer Battle) Routes
+    Route::get('/rooms/{code}/babak-belur', [\App\Http\Controllers\BabakBelurController::class, 'arena'])->name('rooms.babak-belur');
+    Route::post('/rooms/{code}/babak-belur/start-stage', [\App\Http\Controllers\BabakBelurController::class, 'startStage'])->name('rooms.babak-belur.start-stage');
+    Route::post('/rooms/{code}/babak-belur/score', [\App\Http\Controllers\BabakBelurController::class, 'updateStageScore'])->name('rooms.babak-belur.score');
+    Route::post('/rooms/{code}/babak-belur/end-stage', [\App\Http\Controllers\BabakBelurController::class, 'endStage'])->name('rooms.babak-belur.end-stage');
+    Route::get('/rooms/{code}/babak-belur/status', [\App\Http\Controllers\BabakBelurController::class, 'stageStatus'])->name('rooms.babak-belur.status');
     
     // Profile
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');

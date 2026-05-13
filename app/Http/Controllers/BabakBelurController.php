@@ -10,6 +10,7 @@ use App\Events\StageStarting;
 use App\Events\StageEnded;
 use App\Events\BabakBelurFinished;
 use App\Events\GameStarted;
+use App\Helpers\SafeBroadcast;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -77,6 +78,7 @@ class BabakBelurController extends Controller
             'id' => $g->id,
             'slug' => $g->slug,
             'title' => $g->title,
+            'total_levels' => $g->levels()->count(),
         ])->toArray();
 
         // Create stage record
@@ -103,7 +105,7 @@ class BabakBelurController extends Controller
             ]);
 
         // Broadcast the carousel + game selection
-        broadcast(new StageStarting($room, $nextStage, $selectedGame, $allGames));
+        SafeBroadcast::dispatch(new StageStarting($room, $nextStage, $selectedGame, $allGames));
 
         return response()->json([
             'success' => true,
@@ -112,6 +114,7 @@ class BabakBelurController extends Controller
                 'id' => $selectedGame->id,
                 'slug' => $selectedGame->slug,
                 'title' => $selectedGame->title,
+                'total_levels' => $selectedGame->levels()->count(),
             ],
         ]);
     }
@@ -143,12 +146,12 @@ class BabakBelurController extends Controller
         ]);
 
         // Broadcast score update
-        broadcast(new \App\Events\ScoreUpdated(
+        SafeBroadcast::dispatch(new \App\Events\ScoreUpdated(
             $room,
             Auth::user(),
             $participant->fresh()->stage_score,
             $request->current_level
-        ))->toOthers();
+        ), toOthers: true);
 
         return response()->json([
             'success' => true,
@@ -242,9 +245,9 @@ class BabakBelurController extends Controller
                 'total_score' => $winner->score,
             ];
 
-            broadcast(new BabakBelurFinished($room, $winnerData, $rankings));
+            SafeBroadcast::dispatch(new BabakBelurFinished($room, $winnerData, $rankings));
         } else {
-            broadcast(new StageEnded($room, $currentStageNum, $qualifiedIds, $eliminatedIds, $rankings));
+            SafeBroadcast::dispatch(new StageEnded($room, $currentStageNum, $qualifiedIds, $eliminatedIds, $rankings));
         }
 
         return response()->json([

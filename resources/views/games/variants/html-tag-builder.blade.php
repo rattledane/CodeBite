@@ -113,6 +113,7 @@
             popupNextLevel: null,
             popupScore: 0,
             roomCode: new URLSearchParams(window.location.search).get('room'),
+            isBabakBelur: new URLSearchParams(window.location.search).get('babak_belur') === '1',
 
             init() {
                 if (this.roomCode) {
@@ -120,6 +121,9 @@
                     this.score = 0;
                     this.completedLevels = [];
                     this.levelScores = {};
+                    if (!this.isBabakBelur) {
+                        this.timeLeft = 300;
+                    }
                 } else {
                     let firstUncompleted = this.levels.findIndex(l => !this.completedLevels.includes(l.id));
                     if (firstUncompleted !== -1) {
@@ -167,7 +171,9 @@
             
             loadLevel() {
                 this.userCode = '';
-                this.timeLeft = 60;
+                if (!this.roomCode || this.isBabakBelur) {
+                    this.timeLeft = 60;
+                }
                 this.attempts = 0;
                 this.showHint = false;
                 if (window.updatePreview) {
@@ -183,10 +189,20 @@
             startTimer() {
                 if (this.timer) clearInterval(this.timer);
                 this.timer = setInterval(() => {
-                    if (this.timeLeft > 0 && !this.showPopup) {
-                        this.timeLeft--;
-                        if (this.timeLeft === 0) {
-                            this.autoSubmit();
+                    if (this.roomCode && !this.isBabakBelur) {
+                        if (this.timeLeft > 0) {
+                            this.timeLeft--;
+                            if (this.timeLeft === 0) {
+                                clearInterval(this.timer);
+                                this.finishRoom();
+                            }
+                        }
+                    } else {
+                        if (this.timeLeft > 0 && !this.showPopup) {
+                            this.timeLeft--;
+                            if (this.timeLeft === 0) {
+                                this.autoSubmit();
+                            }
                         }
                     }
                 }, 1000);
@@ -259,7 +275,12 @@
                 
                 if (finished) {
                     if (this.roomCode) {
+                        if (this.isBabakBelur) {
+                            this.showResultPopup('stage_finished', this.score);
+                            return;
+                        }
                         await this.finishRoom();
+                        this.showResultPopup('stage_finished', this.score);
                     } else {
                         window.location.href = '/games/' + this.game.slug + '/complete';
                     }
@@ -323,11 +344,21 @@
                                 
                                 if (isCorrect) {
                                     const preview = document.getElementById('preview-container');
-                                    preview.classList.add('scale-105', 'transition-transform');
-                                    setTimeout(() => preview.classList.remove('scale-105'), 300);
+                                    if (preview) {
+                                        preview.classList.add('scale-105', 'transition-transform');
+                                        setTimeout(() => preview.classList.remove('scale-105'), 300);
+                                    }
                                     this.showResultPopup('success', earnedScore, null);
                                 } else if (isAuto) {
                                     this.showResultPopup('timeout', 0, null);
+                                }
+
+                                if (this.isBabakBelur) {
+                                    window.parent.postMessage({
+                                        type: 'bb_score_update',
+                                        score: this.score,
+                                        current_level: nextLvl
+                                    }, '*');
                                 }
                             }
                         } else {

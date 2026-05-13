@@ -122,8 +122,21 @@
                                         <img :src="p.avatar || `https://ui-avatars.com/api/?name=${p.username}`" class="w-full h-full object-cover">
                                     </div>
                                     <div class="flex-grow min-w-0">
-                                        <div class="font-black truncate text-sm" style="font-family: 'Space Mono', monospace;" x-text="p.username"></div>
-                                        <div class="text-xs font-bold" style="font-family: 'Space Mono', monospace;" x-text="p.is_eliminated ? '💀 Eliminated' : p.stage_score + ' pts'"></div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <div class="font-black truncate text-sm" style="font-family: 'Space Mono', monospace;" x-text="p.username"></div>
+                                            <div class="text-xs font-bold" style="font-family: 'Space Mono', monospace;" x-text="p.is_eliminated ? '💀 Eliminated' : p.stage_score + ' pts'"></div>
+                                        </div>
+                                        
+                                        <!-- Progress Bar Redesigned -->
+                                        <template x-if="!p.is_eliminated && selectedGame">
+                                            <div class="mt-1">
+                                                <div class="h-3 w-full neo-border bg-white overflow-hidden p-[1px]" style="box-shadow: none; border-width: 2px;">
+                                                    <div class="h-full transition-all duration-700 ease-out bg-[#00ff88]" 
+                                                         :style="`width: ${Math.min((p.current_level / (selectedGame.total_levels || 1)) * 100, 100)}%`">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
                                     </div>
                                 </div>
                             </template>
@@ -199,9 +212,25 @@
                     <h2 class="text-3xl font-black uppercase" style="font-family: 'Space Mono', monospace;" x-text="winnerData.username"></h2>
                     <p class="font-black text-xl mt-2" style="font-family: 'Space Mono', monospace;" x-text="winnerData.total_score + ' Total Points'"></p>
                 </div>
-                <a href="{{ route('rooms.create') }}" class="neo-btn text-lg uppercase" style="background: white; padding: 14px 40px; font-family: 'Space Mono', monospace; box-shadow: 6px 6px 0px var(--neo-black);">
-                    🏠 Kembali ke Lobby
-                </a>
+                <div class="neo-border p-4 mb-6 max-h-[30vh] overflow-y-auto" style="background: white; box-shadow: 4px 4px 0px var(--neo-black);">
+                    <h3 class="font-black uppercase mb-3 text-sm border-b-2 border-black pb-1" style="font-family: 'Space Mono', monospace;">Final Leaderboard</h3>
+                    <template x-for="(r, i) in finalRankings" :key="r.user_id">
+                        <div class="flex items-center gap-3 p-2" :class="i > 0 ? 'border-t border-gray-200' : ''">
+                            <span class="font-black text-sm w-6" style="font-family: 'Space Mono', monospace;" x-text="i + 1"></span>
+                            <span class="font-black text-sm flex-grow truncate" style="font-family: 'Space Mono', monospace;" x-text="r.username"></span>
+                            <span class="font-black text-sm" style="font-family: 'Space Mono', monospace;" x-text="r.total_score + 'pts'"></span>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ route('rooms.create') }}" class="neo-btn text-lg uppercase" style="background: white; padding: 14px 40px; font-family: 'Space Mono', monospace; box-shadow: 6px 6px 0px var(--neo-black);">
+                        🏠 Create New Room
+                    </a>
+                    <a href="{{ route('games.index') }}" class="neo-btn text-lg uppercase" style="background: var(--neo-yellow); padding: 14px 40px; font-family: 'Space Mono', monospace; box-shadow: 6px 6px 0px var(--neo-black);">
+                        🎮 Back to Games
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -226,7 +255,12 @@ document.addEventListener('alpine:init', () => {
         currentStage: {{ $room->current_stage ?? 1 }},
         activePlayers: {{ $room->activePlayers()->count() }},
         isEliminated: {{ $participant->is_eliminated ? 'true' : 'false' }},
-        selectedGame: @json($currentStage ? ['id' => $currentStage->game->id, 'slug' => $currentStage->game->slug, 'title' => $currentStage->game->title] : null),
+        selectedGame: @json($currentStage ? [
+            'id' => $currentStage->game->id, 
+            'slug' => $currentStage->game->slug, 
+            'title' => $currentStage->game->title,
+            'total_levels' => $currentStage->game->levels->count()
+        ] : null),
 
         // Timer
         stageTimer: {{ $room->stage_timer }},
@@ -247,6 +281,7 @@ document.addEventListener('alpine:init', () => {
             'avatar' => $p->user->avatar ?? null,
             'stage_score' => $p->stage_score ?? 0,
             'total_score' => $p->score ?? 0,
+            'current_level' => $p->current_level ?? 1,
             'is_eliminated' => $p->is_eliminated,
         ])),
 
@@ -254,6 +289,7 @@ document.addEventListener('alpine:init', () => {
         lastStageNum: 0,
         stageResults: { qualified: 0, eliminated: 0, myQualified: false, rankings: [], isFinal: false },
         winnerData: { username: '', avatar: '', total_score: 0 },
+        finalRankings: [],
 
         get sortedPlayers() {
             return this.players.slice()
@@ -323,6 +359,12 @@ document.addEventListener('alpine:init', () => {
                         setTimeout(() => {
                             this.phase = 'playing';
                             this.stageScore = 0;
+                            this.players.forEach(p => {
+                                if (!p.is_eliminated) {
+                                    p.stage_score = 0;
+                                    p.current_level = 1;
+                                }
+                            });
                             this.stageTimer = this.stageTimerMax;
                             this.startTimer();
                         }, 3000);
@@ -368,6 +410,7 @@ document.addEventListener('alpine:init', () => {
             let p = this.players.find(pl => pl.user_id === data.user_id);
             if (p) {
                 p.stage_score = data.score;
+                p.current_level = data.current_level;
             }
         },
 
@@ -414,6 +457,7 @@ document.addEventListener('alpine:init', () => {
         handleFinished(data) {
             if (this.timerInterval) clearInterval(this.timerInterval);
             this.winnerData = data.winner;
+            this.finalRankings = data.final_rankings;
             this.phase = 'winner';
         },
 
