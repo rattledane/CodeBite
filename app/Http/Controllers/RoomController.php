@@ -137,7 +137,10 @@ class RoomController extends Controller
 
         SafeBroadcast::dispatch(new GameStarted($room));
 
-        return response()->json(['success' => true, 'message' => 'Game dimulai!']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Game dimulai!',
+        ]);
     }
 
     /**

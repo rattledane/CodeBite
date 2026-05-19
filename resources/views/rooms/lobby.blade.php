@@ -9,12 +9,17 @@
         <!-- TOP SECTION: Room Code & Game Info -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-            <!-- Game Info -->
+            <!-- Game/Mode Info -->
             <div class="col-span-1 neo-card p-6 flex flex-col justify-between animate-slide-in">
                 <div>
                     <div class="flex items-center gap-2 mb-4 pb-3" style="border-bottom: 4px solid var(--neo-black);">
                         <span class="neo-border px-2 py-0.5 text-xs font-black uppercase" style="background: var(--neo-blue); color: white; font-family: 'Space Mono', monospace; box-shadow: 2px 2px 0px var(--neo-black);">INFO</span>
                         <h2 class="text-lg font-black uppercase" style="font-family: 'Space Mono', monospace;">Game Info</h2>
+                    </div>
+
+                    <!-- Regular Mode Info -->
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="neo-border px-2 py-1 text-xs font-black uppercase" style="background: var(--neo-green); color: var(--neo-black); font-family: 'Space Mono', monospace; box-shadow: 2px 2px 0px var(--neo-black);">🏁 REGULAR</span>
                     </div>
                     <h3 class="text-2xl md:text-3xl font-black" style="font-family: 'Space Mono', monospace;">{{ $room->game->title }}</h3>
                     <p class="font-bold text-gray-600 mt-2">{{ $room->game->description }}</p>
@@ -80,8 +85,8 @@
                     </div>
                 </template>
 
-                <!-- Empty Slots -->
-                <template x-for="i in (maxPlayers - players.length)" :key="'empty-'+i">
+                <!-- Empty Slots (show max 10 empty for BB to avoid clutter) -->
+                <template x-for="i in Math.min(maxPlayers - players.length, 10)" :key="'empty-'+i">
                     <div class="flex flex-col items-center justify-center p-4 h-[156px]" style="border: 4px dashed #ccc; background: #fafaf5;">
                         <div class="w-8 h-8 mb-2" style="border: 3px dashed #ccc; opacity: 0.5;"></div>
                         <span class="text-gray-400 font-bold text-center text-sm" style="font-family: 'Space Mono', monospace;">Menunggu...</span>

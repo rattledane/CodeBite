@@ -115,7 +115,6 @@
             popupNextLevel: null,
             popupScore: 0,
             roomCode: new URLSearchParams(window.location.search).get('room'),
-            isBabakBelur: new URLSearchParams(window.location.search).get('babak_belur') === '1',
 
             init() {
                 if (this.roomCode) {
@@ -123,9 +122,7 @@
                     this.score = 0;
                     this.completedLevels = [];
                     this.levelScores = {};
-                    if (!this.isBabakBelur) {
-                        this.timeLeft = 300;
-                    }
+                    this.timeLeft = 300;
                 } else {
                     let firstUncompleted = this.levels.findIndex(l => !this.completedLevels.includes(l.id));
                     if (firstUncompleted !== -1) {
@@ -167,7 +164,7 @@
             
             loadLevel() {
                 this.userCode = '';
-                if (!this.roomCode || this.isBabakBelur) {
+                if (!this.roomCode) {
                     this.timeLeft = 60;
                 }
                 this.attempts = 0;
@@ -184,7 +181,7 @@
             startTimer() {
                 if (this.timer) clearInterval(this.timer);
                 this.timer = setInterval(() => {
-                    if (this.roomCode && !this.isBabakBelur) {
+                    if (this.roomCode) {
                         if (this.timeLeft > 0) {
                             this.timeLeft--;
                             if (this.timeLeft === 0) {
@@ -276,10 +273,6 @@
                 
                 if (finished) {
                     if (this.roomCode) {
-                        if (this.isBabakBelur) {
-                            this.showResultPopup('stage_finished', this.score);
-                            return;
-                        }
                         await this.finishRoom();
                         this.showResultPopup('stage_finished', this.score);
                     } else {
@@ -321,7 +314,7 @@
                         if (this.roomCode) {
                             let updatedScore = this.score + earnedScore;
                             let nextLvl = this.currentLevelIndex + 1 + (isCorrect ? 1 : 0);
-                            
+
                             response = await fetch(`/rooms/${this.roomCode}/score`, {
                                 method: 'POST',
                                 headers: {
@@ -346,19 +339,10 @@
                                 
                                 if (isCorrect) {
                                     const preview = document.getElementById('preview-container');
-                                    preview.classList.add('scale-105', 'transition-transform');
-                                    setTimeout(() => preview.classList.remove('scale-105'), 300);
+                                    if (preview) { preview.classList.add('scale-105', 'transition-transform'); setTimeout(() => preview.classList.remove('scale-105'), 300); }
                                     this.showResultPopup('success', earnedScore, null);
                                 } else if (isAuto) {
                                     this.showResultPopup('timeout', 0, null);
-                                }
-
-                                if (this.isBabakBelur) {
-                                    window.parent.postMessage({
-                                        type: 'bb_score_update',
-                                        score: this.score,
-                                        current_level: nextLvl
-                                    }, '*');
                                 }
                             }
                         } else {

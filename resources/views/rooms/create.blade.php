@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen pb-20 pt-12">
+<div class="min-h-screen pb-20 pt-12" x-data="createRoom()">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Header -->
@@ -57,15 +57,27 @@
 
             <!-- CREATE ROOM CARD -->
             <div class="neo-border p-8 flex flex-col animate-slide-in stagger-2" style="background: var(--neo-black); color: white; box-shadow: 8px 8px 0px var(--neo-yellow);">
-                <div class="mb-8">
+                <div class="mb-6">
                     <span class="neo-border px-3 py-1 font-black text-xl inline-block" style="background: var(--neo-yellow); color: var(--neo-black); box-shadow: 2px 2px 0px white; font-family: 'Space Mono', monospace;">CREATE</span>
                     <h2 class="text-3xl md:text-4xl font-black uppercase mt-4 mb-2" style="font-family: 'Space Mono', monospace; color: var(--neo-yellow);">Buat Room</h2>
-                    <p class="font-bold" style="color: #aaa;">Pilih game dan ajak temanmu balapan coding!</p>
+                    <p class="font-bold" style="color: #aaa;">Pilih mode dan ajak temanmu!</p>
                 </div>
 
                 <form action="{{ route('rooms.store') }}" method="POST" class="flex-grow flex flex-col justify-between">
                     @csrf
-                    <div class="mb-8">
+
+                    <!-- MAX PLAYERS INPUT -->
+                    <div class="mb-6">
+                        <label class="block font-black uppercase text-base mb-2" style="font-family: 'Space Mono', monospace; letter-spacing: 1px; color: var(--neo-green);">Maksimal Pemain</label>
+                        <input type="number" name="max_players" value="10" min="2" max="50" required
+                               class="w-full neo-border p-4 text-xl font-bold focus:outline-none transition-colors"
+                               style="background: #333; color: white; border-color: white;"
+                               onfocus="this.style.borderColor='var(--neo-yellow)'"
+                               onblur="this.style.borderColor='white'">
+                    </div>
+
+                    <!-- GAME SELECTOR -->
+                    <div class="mb-6">
                         <label class="block font-black uppercase text-base mb-2" style="font-family: 'Space Mono', monospace; letter-spacing: 1px; color: var(--neo-green);">Pilih Game</label>
                         <div class="relative">
                             <select name="game_id" required class="appearance-none w-full neo-border p-4 font-bold text-xl cursor-pointer focus:outline-none transition-colors" style="background: #333; color: white; border-color: white;" onfocus="this.style.borderColor='var(--neo-yellow)'" onblur="this.style.borderColor='white'">

@@ -49,11 +49,11 @@
                     <div class="mt-3 relative">
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-[10px] font-black uppercase text-gray-400" style="font-family: 'Space Mono', monospace;">Progress</span>
-                            <span class="text-[10px] font-black" style="font-family: 'Space Mono', monospace;" x-text="Math.round(Math.min((p.current_level / {{ count($levels) }}) * 100, 100)) + '%'"></span>
+                            <span class="text-[10px] font-black" style="font-family: 'Space Mono', monospace;" x-text="Math.round(Math.max(0, Math.min(((p.current_level - 1) / {{ count($levels) }}) * 100, 100))) + '%'"></span>
                         </div>
                         <div class="h-4 w-full neo-border bg-white overflow-hidden p-[2px]" style="box-shadow: none; border-width: 2px;">
                             <div class="h-full transition-all duration-700 ease-out rounded-sm bg-[#00ff88]" 
-                                 :style="`width: ${Math.min((p.current_level / {{ count($levels) }}) * 100, 100)}%`">
+                                 :style="`width: ${Math.max(0, Math.min(((p.current_level - 1) / {{ count($levels) }}) * 100, 100))}%`">
                             </div>
                         </div>
                     </div>
@@ -112,7 +112,7 @@
                 <span x-text="currentProgress"></span>
             </div>
             <div class="h-5 w-full neo-border bg-gray-100">
-                <div class="h-full transition-all duration-300" style="background: var(--neo-yellow);" :style="`width: ${((currentLevelIndex + 1) / levels.length) * 100}%; ${((currentLevelIndex + 1) / levels.length) * 100 < 100 ? 'border-right: 3px solid var(--neo-black);' : ''}`"></div>
+                <div class="h-full transition-all duration-300" style="background: var(--neo-yellow);" :style="`width: ${(currentLevelIndex / levels.length) * 100}%; ${(currentLevelIndex / levels.length) * 100 < 100 && currentLevelIndex > 0 ? 'border-right: 3px solid var(--neo-black);' : ''}`"></div>
             </div>
         </div>
 

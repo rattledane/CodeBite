@@ -34,10 +34,10 @@ class GameStarted implements ShouldBroadcast
 
     public function broadcastWith(): array
     {
-        $firstLevel = $this->room->game->levels()->orderBy('order')->first();
+        $firstLevel = $this->room->game?->levels()->orderBy('order')->first();
 
         return [
-            'game_slug' => $this->room->game->slug,
+            'game_slug' => $this->room->game?->slug,
             'first_level' => $firstLevel ? [
                 'id' => $firstLevel->id,
                 'order' => $firstLevel->order,
@@ -45,7 +45,7 @@ class GameStarted implements ShouldBroadcast
                 'initial_code' => $firstLevel->initial_code,
                 'max_score' => $firstLevel->max_score,
             ] : null,
-            'started_at' => $this->room->started_at->toISOString(),
+            'started_at' => $this->room->started_at?->toISOString(),
         ];
     }
 }
